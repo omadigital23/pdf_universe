@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const app = await getTranslations({ locale, namespace: "app" });
 
   return {
-    metadataBase: new URL("https://pdf.omadigital.net"),
+    metadataBase: new URL("https://pdfuniverse.omadigital.net"),
     title: app("pageTitle"),
     description: app("pageDescription"),
     alternates: {
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: app("pageTitle"),
       description: t("ogDescription"),
-      url: `https://pdf.omadigital.net/${locale}/app`,
+      url: `https://pdfuniverse.omadigital.net/${locale}/app`,
       images: ["/opengraph-image"],
     },
   };

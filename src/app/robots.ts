@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://pdf.omadigital.net/sitemap.xml",
+    sitemap: "https://pdfuniverse.omadigital.net/sitemap.xml",
   };
 }

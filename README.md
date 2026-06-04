@@ -2,7 +2,7 @@
 
 OMA PDF Universe est un studio PDF local-first pour fusionner, convertir, signer et annoter des documents directement dans le navigateur.
 
-Production cible : `https://pdf.omadigital.net`
+Production cible : `https://pdfuniverse.omadigital.net`
 
 ## Stack
 

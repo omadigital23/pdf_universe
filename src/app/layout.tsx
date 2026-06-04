@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://pdf.omadigital.net"),
+  metadataBase: new URL("https://pdfuniverse.omadigital.net"),
   title: { default: "OMA PDF", template: "%s · OMA PDF" },
   description: "Outils PDF professionnels dans le navigateur, par OMA Digital.",
   openGraph: {

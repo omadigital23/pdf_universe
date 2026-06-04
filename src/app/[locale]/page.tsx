@@ -122,7 +122,7 @@ export default async function LandingPage({ params }: Props) {
               name: tn("brand"),
               applicationCategory: "BusinessApplication",
               operatingSystem: "Web",
-              url: `https://pdf.omadigital.net/${locale}`,
+              url: `https://pdfuniverse.omadigital.net/${locale}`,
               offers: {
                 "@type": "Offer",
                 price: "0",

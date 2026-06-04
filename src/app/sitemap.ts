@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 // Sitemap généré dynamiquement pour toutes les locales
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://pdf.omadigital.net";
+  const base = "https://pdfuniverse.omadigital.net";
   const locales = ["fr", "en"];
   const routes = ["", "/app"];
 
