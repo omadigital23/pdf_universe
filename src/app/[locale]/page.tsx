@@ -126,7 +126,7 @@ export default async function LandingPage({ params }: Props) {
               offers: {
                 "@type": "Offer",
                 price: "0",
-                priceCurrency: locale === "fr" ? "XOF" : "USD",
+                priceCurrency: "USD",
               },
               publisher: {
                 "@type": "Organization",
