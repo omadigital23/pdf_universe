@@ -125,6 +125,21 @@
     "dropIncompatible": "Certains fichiers ne sont pas compatibles avec cet outil.",
     "dropIncompatibleSingle": "Le fichier sélectionné n'est pas compatible avec cet outil.",
     "statusError": "Traitement impossible.",
+    "diagnostics": {
+      "title": "Diagnostics",
+      "privacy": "Stocké localement",
+      "events": "Événements",
+      "successes": "Succès",
+      "errors": "Erreurs",
+      "refresh": "Actualiser les diagnostics",
+      "export": "Exporter le rapport diagnostics",
+      "clear": "Effacer les diagnostics"
+    },
+    "errors": {
+      "title": "Une erreur est survenue",
+      "description": "Le studio a isolé l'erreur pour protéger votre session. Vos fichiers ne sont pas envoyés.",
+      "reset": "Reprendre"
+    },
     "tools": {
       "merge": {
         "label": "Fusionner",

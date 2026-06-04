@@ -8,10 +8,12 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { RotateCcw, FileStack, ImagePlus, Images, PenLine, Type, Plus, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
+import { AppErrorBoundary } from "@/components/app/AppErrorBoundary";
+import { DiagnosticsPanel } from "@/components/app/DiagnosticsPanel";
 import { StatusPill } from "@/components/shared/StatusPill";
 import { PdfPreview } from "@/components/shared/PdfPreview";
 import { MergeTool } from "@/components/tools/MergeTool";
@@ -20,6 +22,7 @@ import { PdfToImagesTool } from "@/components/tools/PdfToImagesTool";
 import { SignTool } from "@/components/tools/SignTool";
 import { EditTool } from "@/components/tools/EditTool";
 import { OmaLogo } from "@/components/shared/OmaLogo";
+import { recordTelemetryEvent } from "@/lib/local-telemetry";
 import type { StudioMetricsPatch, StudioStatus, ToolId } from "@/lib/types";
 
 /* Configuration des outils */
@@ -94,24 +97,93 @@ function AppInner({ locale }: Props) {
   const [pdfCount, setPdfCount] = useState(0);
   const [imgCount, setImgCount] = useState(0);
   const [resetKey, setResetKey] = useState(0);
+  const lastStatusKindRef = useRef<StudioStatus["kind"]>("idle");
+  const didRecordOpenRef = useRef(false);
 
   const isWorking = status.kind === "working";
+
+  useEffect(() => {
+    if (didRecordOpenRef.current) return;
+    didRecordOpenRef.current = true;
+    recordTelemetryEvent({ name: "app_open", tool: activeTool });
+  }, [activeTool]);
+
+  function handleStatusChange(nextStatus: StudioStatus) {
+    const previousKind = lastStatusKindRef.current;
+    const metrics = { pdfCount, imageCount: imgCount };
+
+    if (nextStatus.kind === "working" && previousKind !== "working") {
+      recordTelemetryEvent({
+        name: "process_start",
+        tool: activeTool,
+        statusKind: nextStatus.kind,
+        ...metrics,
+      });
+    }
+
+    if (nextStatus.kind === "success") {
+      recordTelemetryEvent({
+        name: "process_success",
+        tool: activeTool,
+        statusKind: nextStatus.kind,
+        ...metrics,
+      });
+    }
+
+    if (nextStatus.kind === "error") {
+      recordTelemetryEvent({
+        name: "process_error",
+        tool: activeTool,
+        statusKind: nextStatus.kind,
+        error: nextStatus.text.slice(0, 160),
+        ...metrics,
+      });
+    }
+
+    lastStatusKindRef.current = nextStatus.kind;
+    setStatus(nextStatus);
+  }
 
   function selectTool(id: ToolId) {
     if (id === activeTool) return;
     setPreviewFile(null);
     setPdfCount(0);
     setImgCount(0);
+    lastStatusKindRef.current = "idle";
     setStatus({ kind: "idle", text: t("statusReady") });
+    recordTelemetryEvent({ name: "tool_select", tool: id });
     router.push(`/${locale}/app?tool=${id}`, { scroll: false });
   }
 
   function updateMetrics(metrics: StudioMetricsPatch) {
+    const previousTotal = pdfCount + imgCount;
+    const nextPdfCount = metrics.pdfCount ?? pdfCount;
+    const nextImageCount = metrics.imageCount ?? imgCount;
+    const nextTotal = nextPdfCount + nextImageCount;
+
     if (typeof metrics.pdfCount === "number") {
       setPdfCount(metrics.pdfCount);
     }
     if (typeof metrics.imageCount === "number") {
       setImgCount(metrics.imageCount);
+    }
+
+    if (nextTotal > previousTotal) {
+      recordTelemetryEvent({
+        name: "files_selected",
+        tool: activeTool,
+        pdfCount: nextPdfCount,
+        imageCount: nextImageCount,
+      });
+    }
+
+    if (nextTotal < previousTotal) {
+      recordTelemetryEvent({
+        name: "files_removed",
+        tool: activeTool,
+        pdfCount: nextPdfCount,
+        imageCount: nextImageCount,
+      });
     }
   }
 
@@ -120,7 +192,9 @@ function AppInner({ locale }: Props) {
     setPdfCount(0);
     setImgCount(0);
     setResetKey((k) => k + 1);
+    lastStatusKindRef.current = "idle";
     setStatus({ kind: "idle", text: t("statusReady") });
+    recordTelemetryEvent({ name: "session_reset", tool: activeTool });
   }
 
   return (
@@ -273,21 +347,21 @@ function AppInner({ locale }: Props) {
               >
                 {activeTool === "merge" && (
                   <MergeTool
-                    setStatus={setStatus}
+                    setStatus={handleStatusChange}
                     isWorking={isWorking}
                     onMetricsChange={updateMetrics}
                   />
                 )}
                 {activeTool === "images-to-pdf" && (
                   <ImagesToPdfTool
-                    setStatus={setStatus}
+                    setStatus={handleStatusChange}
                     isWorking={isWorking}
                     onMetricsChange={updateMetrics}
                   />
                 )}
                 {activeTool === "pdf-to-images" && (
                   <PdfToImagesTool
-                    setStatus={setStatus}
+                    setStatus={handleStatusChange}
                     isWorking={isWorking}
                     onMetricsChange={updateMetrics}
                     onFileChange={setPreviewFile}
@@ -295,7 +369,7 @@ function AppInner({ locale }: Props) {
                 )}
                 {activeTool === "sign" && (
                   <SignTool
-                    setStatus={setStatus}
+                    setStatus={handleStatusChange}
                     isWorking={isWorking}
                     onMetricsChange={updateMetrics}
                     onFileChange={setPreviewFile}
@@ -303,7 +377,7 @@ function AppInner({ locale }: Props) {
                 )}
                 {activeTool === "edit" && (
                   <EditTool
-                    setStatus={setStatus}
+                    setStatus={handleStatusChange}
                     isWorking={isWorking}
                     onMetricsChange={updateMetrics}
                     onFileChange={setPreviewFile}
@@ -315,6 +389,10 @@ function AppInner({ locale }: Props) {
 
           <div className="xl:hidden">
             <PdfPreview file={previewFile} />
+          </div>
+
+          <div className="xl:hidden">
+            <DiagnosticsPanel locale={locale} />
           </div>
         </div>
 
@@ -361,6 +439,8 @@ function AppInner({ locale }: Props) {
             </div>
           </div>
 
+          <DiagnosticsPanel locale={locale} />
+
           {/* Teaser Pro */}
           <div className="rounded-md border border-[var(--accent-light)] bg-[var(--accent-muted)] p-4">
             <div className="mb-2 flex items-center gap-2">
@@ -383,14 +463,16 @@ export function PdfAppClient({ locale }: Props) {
   const t = useTranslations("app");
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex h-64 items-center justify-center text-sm text-[var(--muted)]">
-          {t("loading")}
-        </div>
-      }
-    >
-      <AppInner locale={locale} />
-    </Suspense>
+    <AppErrorBoundary>
+      <Suspense
+        fallback={
+          <div className="flex h-64 items-center justify-center text-sm text-[var(--muted)]">
+            {t("loading")}
+          </div>
+        }
+      >
+        <AppInner locale={locale} />
+      </Suspense>
+    </AppErrorBoundary>
   );
 }

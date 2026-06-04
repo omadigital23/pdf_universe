@@ -9,8 +9,9 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "audit": "npm audit --audit-level=high",
-    "quality": "npm run lint && npm run typecheck && npm run test && npm run build && npm run audit"
+    "quality": "npm run lint && npm run typecheck && npm run test && npm run build && npm run test:e2e && npm run audit"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -25,6 +26,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

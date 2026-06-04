@@ -125,6 +125,21 @@
     "dropIncompatible": "Some files are not compatible with this tool.",
     "dropIncompatibleSingle": "The selected file is not compatible with this tool.",
     "statusError": "Processing failed.",
+    "diagnostics": {
+      "title": "Diagnostics",
+      "privacy": "Stored locally",
+      "events": "Events",
+      "successes": "Successes",
+      "errors": "Errors",
+      "refresh": "Refresh diagnostics",
+      "export": "Export diagnostics report",
+      "clear": "Clear diagnostics"
+    },
+    "errors": {
+      "title": "Something went wrong",
+      "description": "The studio isolated the error to protect your session. Your files are not uploaded.",
+      "reset": "Resume"
+    },
     "tools": {
       "merge": {
         "label": "Merge",
