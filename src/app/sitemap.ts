@@ -10,6 +10,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     routes.map((route) => ({
       url: `${base}/${locale}${route}`,
       lastModified: new Date(),
+      alternates: {
+        languages: {
+          fr: `${base}/fr${route}`,
+          en: `${base}/en${route}`,
+          "x-default": `${base}/fr${route}`,
+        },
+      },
       changeFrequency: "monthly" as const,
       priority: route === "" ? 1 : 0.8,
     })),

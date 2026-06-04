@@ -1,9 +1,9 @@
 {
   "meta": {
-    "title": "OMA PDF — Intelligent PDF Converter",
-    "description": "Merge, convert, sign and annotate PDF files directly in your browser. Free, no account required, 100% local.",
-    "ogTitle": "OMA PDF by OMA Digital",
-    "ogDescription": "Professional PDF tools, serverless, no signup."
+    "title": "OMA PDF — Free PDF Tools for Senegal, Canada and Worldwide",
+    "description": "Merge, convert, sign and annotate PDFs in your browser. Free, no account, local-first, for Senegal, Canada, diaspora and global teams.",
+    "ogTitle": "OMA PDF Universe — free international PDF tools",
+    "ogDescription": "Free local-first PDF tools with no signup for Senegal, Canada, diaspora and worldwide teams."
   },
   "nav": {
     "brand": "OMA PDF",
@@ -38,7 +38,7 @@
     "heroSecondaryCta": "See tools",
     "heroProof1": "Local processing",
     "heroProof2": "No account",
-    "heroProof3": "SMEs and freelancers",
+    "heroProof3": "Senegal, Canada, diaspora",
     "previewTitle": "PDF Studio",
     "previewStatus": "Ready in browser",
     "previewDrop": "Drop PDF files here",
@@ -93,13 +93,17 @@
     "planProFeature5": "API access",
     "planProBtn": "Get notified",
     "planProBadge": "Coming soon",
+    "schemaAudience": "SMEs, freelancers, individuals and diaspora",
+    "schemaSenegal": "Senegal",
+    "schemaCanada": "Canada",
+    "schemaWorldwide": "Worldwide",
     "ctaTitle": "Ready to master your PDFs?",
     "ctaSubtitle": "Get started now. No download, no signup.",
     "ctaBtn": "Open PDF Tool"
   },
   "app": {
-    "pageTitle": "Free PDF Studio",
-    "pageDescription": "Use the 5 OMA Digital PDF tools directly in your browser.",
+    "pageTitle": "Free International PDF Studio",
+    "pageDescription": "Use the 5 OMA Digital PDF tools for free in your browser, in Senegal, Canada and anywhere worldwide.",
     "toolsHeading": "Tools",
     "toolsNavigation": "Tools navigation",
     "loading": "Loading...",

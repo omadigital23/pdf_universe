@@ -1,9 +1,9 @@
 {
   "meta": {
-    "title": "OMA PDF — Convertisseur PDF intelligent",
-    "description": "Fusionnez, convertissez, signez et modifiez vos PDF directement dans le navigateur. Gratuit, sans compte, 100% local.",
-    "ogTitle": "OMA PDF par OMA Digital",
-    "ogDescription": "Outils PDF professionnels, sans serveur, sans inscription."
+    "title": "OMA PDF — Outils PDF gratuits pour le Sénégal, le Canada et le monde",
+    "description": "Fusionnez, convertissez, signez et annotez vos PDF dans le navigateur. Gratuit, sans compte, local-first, pour le Sénégal, le Canada et la diaspora.",
+    "ogTitle": "OMA PDF Universe — outils PDF gratuits et internationaux",
+    "ogDescription": "Outils PDF gratuits, local-first et sans inscription pour le Sénégal, le Canada, la diaspora et le monde."
   },
   "nav": {
     "brand": "OMA PDF",
@@ -38,7 +38,7 @@
     "heroSecondaryCta": "Voir les outils",
     "heroProof1": "Traitement local",
     "heroProof2": "Sans compte",
-    "heroProof3": "PME et freelances",
+    "heroProof3": "Sénégal, Canada, diaspora",
     "previewTitle": "Studio PDF",
     "previewStatus": "Prêt dans le navigateur",
     "previewDrop": "Déposez vos PDF ici",
@@ -93,13 +93,17 @@
     "planProFeature5": "Accès API",
     "planProBtn": "Être notifié",
     "planProBadge": "À venir",
+    "schemaAudience": "PME, freelances, particuliers et diaspora",
+    "schemaSenegal": "Sénégal",
+    "schemaCanada": "Canada",
+    "schemaWorldwide": "Monde",
     "ctaTitle": "Prêt à maîtriser vos PDF ?",
     "ctaSubtitle": "Lancez-vous maintenant. Aucun téléchargement, aucune inscription.",
     "ctaBtn": "Ouvrir l'outil PDF"
   },
   "app": {
-    "pageTitle": "Studio PDF gratuit",
-    "pageDescription": "Utilisez les 5 outils PDF OMA Digital directement dans votre navigateur.",
+    "pageTitle": "Studio PDF gratuit international",
+    "pageDescription": "Utilisez les 5 outils PDF OMA Digital gratuitement dans votre navigateur, au Sénégal, au Canada et partout dans le monde.",
     "toolsHeading": "Outils",
     "toolsNavigation": "Navigation des outils",
     "loading": "Chargement...",

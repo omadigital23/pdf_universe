@@ -8,7 +8,6 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "meta" });
   const app = await getTranslations({ locale, namespace: "app" });
 
   return {
@@ -20,13 +19,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: {
         fr: "/fr/app",
         en: "/en/app",
+        "x-default": "/fr/app",
       },
     },
     openGraph: {
       title: app("pageTitle"),
-      description: t("ogDescription"),
+      description: app("pageDescription"),
       url: `https://pdfuniverse.omadigital.net/${locale}/app`,
       images: ["/opengraph-image"],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: app("pageTitle"),
+      description: app("pageDescription"),
     },
   };
 }

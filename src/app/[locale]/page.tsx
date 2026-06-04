@@ -123,6 +123,23 @@ export default async function LandingPage({ params }: Props) {
               applicationCategory: "BusinessApplication",
               operatingSystem: "Web",
               url: `https://pdfuniverse.omadigital.net/${locale}`,
+              inLanguage: locale,
+              availableLanguage: ["fr", "en"],
+              areaServed: [
+                { "@type": "Country", name: t("schemaSenegal") },
+                { "@type": "Country", name: t("schemaCanada") },
+                { "@type": "Place", name: t("schemaWorldwide") },
+              ],
+              audience: {
+                "@type": "Audience",
+                audienceType: t("schemaAudience"),
+              },
+              featureList: [
+                ...freeFeatures,
+                ...proFeatures,
+                t("why1Title"),
+                t("why2Title"),
+              ],
               offers: {
                 "@type": "Offer",
                 price: "0",
