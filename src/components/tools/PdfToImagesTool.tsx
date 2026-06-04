@@ -1,10 +1,5 @@
 "use client";
 
-/**
- * PdfToImagesTool.tsx
- * Exporte toutes les pages d'un PDF en images PNG compressées dans un ZIP.
- */
-
 import { FileImage } from "lucide-react";
 import { useTranslations } from "next-intl";
 import JSZip from "jszip";
@@ -15,34 +10,42 @@ import { NumberField } from "@/components/shared/NumberField";
 import {
   canvasToBlob,
   downloadBlob,
+  isPdfFile,
   loadPdfJs,
   safeBaseName,
 } from "@/lib/pdf-utils";
-import type { StudioStatus } from "@/lib/types";
+import type { ToolRuntimeProps } from "@/lib/types";
 
-type Props = {
-  setStatus: (status: StudioStatus) => void;
-  isWorking: boolean;
-  /** Callback pour transmettre le fichier sélectionné au composant parent (aperçu) */
+type Props = ToolRuntimeProps & {
   onFileChange?: (file: File | null) => void;
 };
 
-export function PdfToImagesTool({ setStatus, isWorking, onFileChange }: Props) {
+export function PdfToImagesTool({
+  setStatus,
+  isWorking,
+  onMetricsChange,
+  onFileChange,
+}: Props) {
   const t = useTranslations("app");
   const tp = useTranslations("app.tools.pdfToImages");
   const [file, setFile] = useState<File | null>(null);
   const [renderScale, setRenderScale] = useState(2);
 
   function handleFiles(incoming: File[]) {
-    const accepted =
-      incoming.find(
-        (f) => f.type === "application/pdf" || f.name.endsWith(".pdf"),
-      ) ?? null;
+    const accepted = incoming.find(isPdfFile) ?? null;
     setFile(accepted);
     onFileChange?.(accepted);
+    onMetricsChange({ pdfCount: accepted ? 1 : 0, imageCount: 0 });
+
     if (!accepted && incoming.length > 0) {
       setStatus({ kind: "error", text: t("dropIncompatibleSingle") });
     }
+  }
+
+  function removeFile() {
+    setFile(null);
+    onFileChange?.(null);
+    onMetricsChange({ pdfCount: 0, imageCount: 0 });
   }
 
   async function exportImages() {
@@ -60,8 +63,12 @@ export function PdfToImagesTool({ setStatus, isWorking, onFileChange }: Props) {
       const zip = new JSZip();
       const baseName = safeBaseName(file.name);
 
-      for (let n = 1; n <= pdf.numPages; n += 1) {
-        const page = await pdf.getPage(n);
+      for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+        setStatus({
+          kind: "working",
+          text: `${tp("working")} ${pageNumber}/${pdf.numPages}`,
+        });
+        const page = await pdf.getPage(pageNumber);
         const viewport = page.getViewport({ scale: renderScale });
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
@@ -70,7 +77,10 @@ export function PdfToImagesTool({ setStatus, isWorking, onFileChange }: Props) {
         canvas.height = Math.ceil(viewport.height);
         await page.render({ canvas, canvasContext: ctx, viewport }).promise;
         const blob = await canvasToBlob(canvas);
-        zip.file(`${baseName}-page-${String(n).padStart(3, "0")}.png`, blob);
+        zip.file(
+          `${baseName}-page-${String(pageNumber).padStart(3, "0")}.png`,
+          blob,
+        );
       }
 
       await pdf.cleanup();
@@ -93,8 +103,10 @@ export function PdfToImagesTool({ setStatus, isWorking, onFileChange }: Props) {
       <DropZone
         title={tp("dropTitle")}
         accept="application/pdf"
+        disabled={isWorking}
         files={file ? [file] : []}
         onFiles={handleFiles}
+        onRemove={removeFile}
       />
       <div className="grid gap-4 rounded-lg border border-[var(--line)] bg-[var(--panel-secondary)] p-3 sm:grid-cols-[1fr_auto] sm:items-end">
         <NumberField
@@ -108,6 +120,7 @@ export function PdfToImagesTool({ setStatus, isWorking, onFileChange }: Props) {
         <ActionButton
           icon={FileImage}
           disabled={!file || isWorking}
+          loading={isWorking}
           onClick={exportImages}
         >
           {tp("action")}

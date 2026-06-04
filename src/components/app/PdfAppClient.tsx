@@ -20,7 +20,7 @@ import { PdfToImagesTool } from "@/components/tools/PdfToImagesTool";
 import { SignTool } from "@/components/tools/SignTool";
 import { EditTool } from "@/components/tools/EditTool";
 import { OmaLogo } from "@/components/shared/OmaLogo";
-import type { StudioStatus, ToolId } from "@/lib/types";
+import type { StudioMetricsPatch, StudioStatus, ToolId } from "@/lib/types";
 
 /* Configuration des outils */
 const TOOLS: Array<{
@@ -98,7 +98,21 @@ function AppInner({ locale }: Props) {
   const isWorking = status.kind === "working";
 
   function selectTool(id: ToolId) {
+    if (id === activeTool) return;
+    setPreviewFile(null);
+    setPdfCount(0);
+    setImgCount(0);
+    setStatus({ kind: "idle", text: t("statusReady") });
     router.push(`/${locale}/app?tool=${id}`, { scroll: false });
+  }
+
+  function updateMetrics(metrics: StudioMetricsPatch) {
+    if (typeof metrics.pdfCount === "number") {
+      setPdfCount(metrics.pdfCount);
+    }
+    if (typeof metrics.imageCount === "number") {
+      setImgCount(metrics.imageCount);
+    }
   }
 
   function resetSession() {
@@ -248,7 +262,7 @@ function AppInner({ locale }: Props) {
             </div>
 
             {/* Corps outil — animé à la transition */}
-            <AnimatePresence mode="wait">
+            <AnimatePresence initial={false} mode="wait">
               <motion.div
                 key={`${activeTool}-${resetKey}`}
                 className="p-4 sm:p-6"
@@ -258,15 +272,24 @@ function AppInner({ locale }: Props) {
                 transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
               >
                 {activeTool === "merge" && (
-                  <MergeTool setStatus={setStatus} isWorking={isWorking} />
+                  <MergeTool
+                    setStatus={setStatus}
+                    isWorking={isWorking}
+                    onMetricsChange={updateMetrics}
+                  />
                 )}
                 {activeTool === "images-to-pdf" && (
-                  <ImagesToPdfTool setStatus={setStatus} isWorking={isWorking} />
+                  <ImagesToPdfTool
+                    setStatus={setStatus}
+                    isWorking={isWorking}
+                    onMetricsChange={updateMetrics}
+                  />
                 )}
                 {activeTool === "pdf-to-images" && (
                   <PdfToImagesTool
                     setStatus={setStatus}
                     isWorking={isWorking}
+                    onMetricsChange={updateMetrics}
                     onFileChange={setPreviewFile}
                   />
                 )}
@@ -274,6 +297,7 @@ function AppInner({ locale }: Props) {
                   <SignTool
                     setStatus={setStatus}
                     isWorking={isWorking}
+                    onMetricsChange={updateMetrics}
                     onFileChange={setPreviewFile}
                   />
                 )}
@@ -281,11 +305,16 @@ function AppInner({ locale }: Props) {
                   <EditTool
                     setStatus={setStatus}
                     isWorking={isWorking}
+                    onMetricsChange={updateMetrics}
                     onFileChange={setPreviewFile}
                   />
                 )}
               </motion.div>
             </AnimatePresence>
+          </div>
+
+          <div className="xl:hidden">
+            <PdfPreview file={previewFile} />
           </div>
         </div>
 

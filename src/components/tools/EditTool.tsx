@@ -17,13 +17,12 @@ import {
   downloadBytes,
   getPlacement,
   hexToRgb,
+  isPdfFile,
   safeBaseName,
 } from "@/lib/pdf-utils";
-import type { EditTarget, Placement, StudioStatus } from "@/lib/types";
+import type { EditTarget, Placement, ToolRuntimeProps } from "@/lib/types";
 
-type Props = {
-  setStatus: (status: StudioStatus) => void;
-  isWorking: boolean;
+type Props = ToolRuntimeProps & {
   onFileChange?: (file: File | null) => void;
 };
 
@@ -34,7 +33,12 @@ const COLORS = [
   { value: "#1d4ed8", key: "colorBlue" as const },
 ];
 
-export function EditTool({ setStatus, isWorking, onFileChange }: Props) {
+export function EditTool({
+  setStatus,
+  isWorking,
+  onMetricsChange,
+  onFileChange,
+}: Props) {
   const t = useTranslations("app");
   const te = useTranslations("app.tools.edit");
   const ts = useTranslations("app.tools.sign");
@@ -48,14 +52,19 @@ export function EditTool({ setStatus, isWorking, onFileChange }: Props) {
 
   function handleFiles(incoming: File[]) {
     const accepted =
-      incoming.find(
-        (f) => f.type === "application/pdf" || f.name.endsWith(".pdf"),
-      ) ?? null;
+      incoming.find(isPdfFile) ?? null;
     setFile(accepted);
     onFileChange?.(accepted);
+    onMetricsChange({ pdfCount: accepted ? 1 : 0, imageCount: 0 });
     if (!accepted && incoming.length > 0) {
       setStatus({ kind: "error", text: t("dropIncompatibleSingle") });
     }
+  }
+
+  function removeFile() {
+    setFile(null);
+    onFileChange?.(null);
+    onMetricsChange({ pdfCount: 0, imageCount: 0 });
   }
 
   async function editPdf() {
@@ -73,10 +82,10 @@ export function EditTool({ setStatus, isWorking, onFileChange }: Props) {
       const pdf = await PDFDocument.load(await file.arrayBuffer());
       const font = await pdf.embedFont(StandardFonts.HelveticaBold);
       const pages = pdf.getPages();
-      const selected =
-        target === "all"
-          ? pages
-          : [pages[Math.min(Math.max(page, 1), pages.length) - 1]];
+      if (pages.length === 0) throw new Error(t("statusError"));
+      const selectedPage = pages[Math.min(Math.max(page, 1), pages.length) - 1];
+      if (!selectedPage) throw new Error(t("statusError"));
+      const selected = target === "all" ? pages : [selectedPage];
       const fill = hexToRgb(color);
 
       for (const p of selected) {
@@ -115,8 +124,10 @@ export function EditTool({ setStatus, isWorking, onFileChange }: Props) {
       <DropZone
         title={te("dropTitle")}
         accept="application/pdf"
+        disabled={isWorking}
         files={file ? [file] : []}
         onFiles={handleFiles}
+        onRemove={removeFile}
       />
 
       <div className="grid gap-4 rounded-lg border border-[var(--line)] bg-[var(--panel-secondary)] p-3">
@@ -176,6 +187,7 @@ export function EditTool({ setStatus, isWorking, onFileChange }: Props) {
           <ActionButton
             icon={Edit3}
             disabled={!file || isWorking}
+            loading={isWorking}
             onClick={editPdf}
           >
             {te("action")}

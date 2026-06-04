@@ -1,16 +1,16 @@
-"use client";
-
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { FileText, Home } from "lucide-react";
 import { OmaLogo } from "@/components/shared/OmaLogo";
 
-export default function AppLayout({
-  children,
-}: {
+type Props = {
   children: React.ReactNode;
-}) {
-  const tn = useTranslations("nav");
+  params: Promise<{ locale: string }>;
+};
+
+export default async function AppLayout({ children, params }: Props) {
+  const { locale } = await params;
+  const tn = await getTranslations({ locale, namespace: "nav" });
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--background)] text-[var(--foreground)]">

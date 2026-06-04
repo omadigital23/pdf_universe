@@ -12,34 +12,44 @@ import { useState } from "react";
 import { DropZone } from "@/components/shared/DropZone";
 import { ActionButton } from "@/components/shared/ActionButton";
 import { SelectField } from "@/components/shared/SelectField";
-import { downloadBytes } from "@/lib/pdf-utils";
-import type { PageMode, StudioStatus } from "@/lib/types";
-
-type Props = {
-  setStatus: (status: StudioStatus) => void;
-  isWorking: boolean;
-};
+import {
+  downloadBytes,
+  isSupportedImageFile,
+  mergeUniqueFiles,
+} from "@/lib/pdf-utils";
+import type { PageMode, ToolRuntimeProps } from "@/lib/types";
 
 // Dimensions A4 en points PDF
 const A4_PORTRAIT: [number, number] = [595.28, 841.89];
 
-export function ImagesToPdfTool({ setStatus, isWorking }: Props) {
+export function ImagesToPdfTool({
+  setStatus,
+  isWorking,
+  onMetricsChange,
+}: ToolRuntimeProps) {
   const t = useTranslations("app");
   const ti = useTranslations("app.tools.imagesToPdf");
   const [files, setFiles] = useState<File[]>([]);
   const [pageMode, setPageMode] = useState<PageMode>("a4-portrait");
 
   function handleFiles(incoming: File[]) {
-    const accepted = incoming.filter(
-      (f) =>
-        f.type === "image/jpeg" ||
-        f.type === "image/png" ||
-        /\.(jpe?g|png)$/i.test(f.name),
-    );
-    setFiles((prev) => [...prev, ...accepted]);
+    const accepted = incoming.filter(isSupportedImageFile);
+    setFiles((prev) => {
+      const next = mergeUniqueFiles(prev, accepted);
+      onMetricsChange({ pdfCount: 0, imageCount: next.length });
+      return next;
+    });
     if (accepted.length !== incoming.length) {
       setStatus({ kind: "error", text: t("dropIncompatible") });
     }
+  }
+
+  function removeFile(index: number) {
+    setFiles((prev) => {
+      const next = prev.filter((_, currentIndex) => currentIndex !== index);
+      onMetricsChange({ pdfCount: 0, imageCount: next.length });
+      return next;
+    });
   }
 
   async function convert() {
@@ -58,7 +68,11 @@ export function ImagesToPdfTool({ setStatus, isWorking }: Props) {
             ? ([A4_PORTRAIT[1], A4_PORTRAIT[0]] as [number, number])
             : null;
 
-      for (const file of files) {
+      for (const [index, file] of files.entries()) {
+        setStatus({
+          kind: "working",
+          text: `${ti("working")} ${index + 1}/${files.length}`,
+        });
         const bytes = new Uint8Array(await file.arrayBuffer());
         const isPng =
           file.type === "image/png" || file.name.toLowerCase().endsWith(".png");
@@ -108,8 +122,10 @@ export function ImagesToPdfTool({ setStatus, isWorking }: Props) {
         title={ti("dropTitle")}
         accept="image/jpeg,image/png"
         multiple
+        disabled={isWorking}
         files={files}
         onFiles={handleFiles}
+        onRemove={removeFile}
       />
       <div className="grid gap-4 rounded-lg border border-[var(--line)] bg-[var(--panel-secondary)] p-3 sm:grid-cols-[1fr_auto] sm:items-end">
         <SelectField<PageMode>
@@ -125,6 +141,7 @@ export function ImagesToPdfTool({ setStatus, isWorking }: Props) {
         <ActionButton
           icon={FileText}
           disabled={files.length === 0 || isWorking}
+          loading={isWorking}
           onClick={convert}
         >
           {ti("action")}

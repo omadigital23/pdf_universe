@@ -15,22 +15,34 @@ type Props = {
   title: string;
   accept: string;
   multiple?: boolean;
+  disabled?: boolean;
   files: File[];
   onFiles: (files: File[]) => void;
+  onRemove: (index: number) => void;
 };
 
-export function DropZone({ title, accept, multiple, files, onFiles }: Props) {
+export function DropZone({
+  title,
+  accept,
+  multiple,
+  disabled,
+  files,
+  onFiles,
+  onRemove,
+}: Props) {
   const id = useId();
   const t = useTranslations("app");
   const [isDragging, setIsDragging] = useState(false);
 
   function handleInput(event: ChangeEvent<HTMLInputElement>) {
+    if (disabled) return;
     onFiles(Array.from(event.target.files ?? []));
     event.target.value = "";
   }
 
   function handleDragOver(e: DragEvent<HTMLLabelElement>) {
     e.preventDefault();
+    if (disabled) return;
     setIsDragging(true);
   }
 
@@ -40,6 +52,7 @@ export function DropZone({ title, accept, multiple, files, onFiles }: Props) {
 
   function handleDrop(event: DragEvent<HTMLLabelElement>) {
     event.preventDefault();
+    if (disabled) return;
     setIsDragging(false);
     onFiles(Array.from(event.dataTransfer.files));
   }
@@ -53,12 +66,14 @@ export function DropZone({ title, accept, multiple, files, onFiles }: Props) {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={`
-          flex min-h-48 cursor-pointer flex-col items-center justify-center gap-3
+          flex min-h-48 flex-col items-center justify-center gap-3
           rounded-md border-2 border-dashed px-6 py-10 text-center
           transition-all duration-200
-          ${isDragging
-            ? "scale-[1.01] border-[var(--accent)] bg-[var(--accent-muted)] shadow-[var(--shadow-sm)]"
-            : "border-[var(--line)] bg-[var(--panel-secondary)] hover:border-[var(--accent)] hover:bg-[var(--accent-pale)]"
+          ${disabled
+            ? "cursor-not-allowed border-[var(--line)] bg-[var(--panel-secondary)] opacity-65"
+            : isDragging
+              ? "scale-[1.01] cursor-pointer border-[var(--accent)] bg-[var(--accent-muted)] shadow-[var(--shadow-sm)]"
+              : "cursor-pointer border-[var(--line)] bg-[var(--panel-secondary)] hover:border-[var(--accent)] hover:bg-[var(--accent-pale)]"
           }
           focus-within:border-[var(--accent)] focus-within:bg-[var(--accent-pale)]
         `}
@@ -86,6 +101,7 @@ export function DropZone({ title, accept, multiple, files, onFiles }: Props) {
           type="file"
           accept={accept}
           multiple={multiple}
+          disabled={disabled}
           onChange={handleInput}
           aria-label={title}
         />
@@ -118,7 +134,7 @@ export function DropZone({ title, accept, multiple, files, onFiles }: Props) {
                 <button
                   type="button"
                   aria-label={`${t("dropRemove")} ${file.name}`}
-                  onClick={() => onFiles(files.filter((_, i) => i !== index))}
+                  onClick={() => onRemove(index)}
                   className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[var(--muted)] transition-colors hover:bg-[var(--danger-bg)] hover:text-[var(--danger)] focus-visible:outline-2"
                 >
                   <X className="h-3.5 w-3.5" aria-hidden="true" />

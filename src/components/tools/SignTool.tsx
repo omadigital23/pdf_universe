@@ -18,18 +18,22 @@ import {
   canvasToBlob,
   downloadBytes,
   getPlacement,
+  isPdfFile,
   readSignatureCanvas,
   safeBaseName,
 } from "@/lib/pdf-utils";
-import type { Placement, StudioStatus } from "@/lib/types";
+import type { Placement, ToolRuntimeProps } from "@/lib/types";
 
-type Props = {
-  setStatus: (status: StudioStatus) => void;
-  isWorking: boolean;
+type Props = ToolRuntimeProps & {
   onFileChange?: (file: File | null) => void;
 };
 
-export function SignTool({ setStatus, isWorking, onFileChange }: Props) {
+export function SignTool({
+  setStatus,
+  isWorking,
+  onMetricsChange,
+  onFileChange,
+}: Props) {
   const t = useTranslations("app");
   const ts = useTranslations("app.tools.sign");
   const [file, setFile] = useState<File | null>(null);
@@ -55,14 +59,19 @@ export function SignTool({ setStatus, isWorking, onFileChange }: Props) {
 
   function handleFiles(incoming: File[]) {
     const accepted =
-      incoming.find(
-        (f) => f.type === "application/pdf" || f.name.endsWith(".pdf"),
-      ) ?? null;
+      incoming.find(isPdfFile) ?? null;
     setFile(accepted);
     onFileChange?.(accepted);
+    onMetricsChange({ pdfCount: accepted ? 1 : 0, imageCount: 0 });
     if (!accepted && incoming.length > 0) {
       setStatus({ kind: "error", text: t("dropIncompatibleSingle") });
     }
+  }
+
+  function removeFile() {
+    setFile(null);
+    onFileChange?.(null);
+    onMetricsChange({ pdfCount: 0, imageCount: 0 });
   }
 
   function resetSignature() {
@@ -126,7 +135,9 @@ export function SignTool({ setStatus, isWorking, onFileChange }: Props) {
       setStatus({ kind: "working", text: ts("working") });
       const pdf = await PDFDocument.load(await file.arrayBuffer());
       const pages = pdf.getPages();
+      if (pages.length === 0) throw new Error(t("statusError"));
       const target = pages[Math.min(Math.max(page, 1), pages.length) - 1];
+      if (!target) throw new Error(t("statusError"));
       const sigBytes = await (await canvasToBlob(cropped)).arrayBuffer();
       const sigImg = await pdf.embedPng(sigBytes);
       const pageW = target.getWidth();
@@ -158,8 +169,10 @@ export function SignTool({ setStatus, isWorking, onFileChange }: Props) {
       <DropZone
         title={ts("dropTitle")}
         accept="application/pdf"
+        disabled={isWorking}
         files={file ? [file] : []}
         onFiles={handleFiles}
+        onRemove={removeFile}
       />
 
       {/* Zone de dessin de la signature */}
@@ -212,6 +225,7 @@ export function SignTool({ setStatus, isWorking, onFileChange }: Props) {
         <ActionButton
           icon={PenLine}
           disabled={!file || isWorking}
+          loading={isWorking}
           onClick={signPdf}
         >
           {ts("action")}

@@ -1,38 +1,66 @@
-/**
- * pdf-utils.ts
- * Fonctions utilitaires partagées entre tous les outils PDF.
- * Pas de dépendances UI — pur TypeScript/navigateur.
- */
-
 import { rgb } from "pdf-lib";
 import type { Placement } from "./types";
 
-// ─── Formatage ────────────────────────────────────────────────────────────────
+type PdfJsModule = typeof import("pdfjs-dist");
 
-/** Convertit un nombre d'octets en chaîne lisible (Ko, Mo, Go) */
+let pdfJsPromise: Promise<PdfJsModule> | null = null;
+
+function fileSignature(file: File): string {
+  return `${file.name}:${file.size}:${file.lastModified}`;
+}
+
+export function isPdfFile(file: File): boolean {
+  return file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+}
+
+export function isSupportedImageFile(file: File): boolean {
+  return (
+    file.type === "image/jpeg" ||
+    file.type === "image/png" ||
+    /\.(jpe?g|png)$/i.test(file.name)
+  );
+}
+
+export function mergeUniqueFiles(current: File[], incoming: File[]): File[] {
+  const seen = new Set(current.map(fileSignature));
+  const next = [...current];
+
+  for (const file of incoming) {
+    const signature = fileSignature(file);
+    if (!seen.has(signature)) {
+      seen.add(signature);
+      next.push(file);
+    }
+  }
+
+  return next;
+}
+
 export function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} o`;
-  const units = ["Ko", "Mo", "Go"];
+
+  const units = ["Ko", "Mo", "Go"] as const;
   let value = bytes / 1024;
   let index = 0;
+
   while (value >= 1024 && index < units.length - 1) {
     value /= 1024;
     index += 1;
   }
+
   return `${value.toFixed(value >= 10 ? 0 : 1)} ${units[index]}`;
 }
 
-/** Nettoie un nom de fichier pour l'utiliser comme base de nom de sortie */
 export function safeBaseName(fileName: string): string {
-  return fileName
+  const cleaned = fileName
     .replace(/\.[^.]+$/, "")
     .replace(/[^\w.-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
     .toLowerCase();
+
+  return cleaned || "document";
 }
 
-// ─── Téléchargement ───────────────────────────────────────────────────────────
-
-/** Déclenche le téléchargement d'un Blob dans le navigateur */
 export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -41,10 +69,9 @@ export function downloadBlob(blob: Blob, filename: string): void {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  URL.revokeObjectURL(url);
+  window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
 }
 
-/** Déclenche le téléchargement d'un Uint8Array (PDF généré par pdf-lib) */
 export function downloadBytes(
   bytes: Uint8Array,
   filename: string,
@@ -53,9 +80,6 @@ export function downloadBytes(
   downloadBlob(new Blob([bytes as BlobPart], { type }), filename);
 }
 
-// ─── Canvas ───────────────────────────────────────────────────────────────────
-
-/** Convertit un canvas HTML en Blob (Promise) */
 export function canvasToBlob(
   canvas: HTMLCanvasElement,
   type = "image/png",
@@ -65,7 +89,7 @@ export function canvasToBlob(
     canvas.toBlob(
       (blob) => {
         if (!blob) {
-          reject(new Error("Impossible de générer l'image."));
+          reject(new Error("Impossible de generer l'image."));
           return;
         }
         resolve(blob);
@@ -76,10 +100,6 @@ export function canvasToBlob(
   });
 }
 
-/**
- * Lit un canvas de signature et retourne un canvas rogné sur la zone dessinée.
- * Retourne null si le canvas est vide.
- */
 export function readSignatureCanvas(
   canvas: HTMLCanvasElement,
 ): HTMLCanvasElement | null {
@@ -94,7 +114,7 @@ export function readSignatureCanvas(
 
   for (let y = 0; y < canvas.height; y += 1) {
     for (let x = 0; x < canvas.width; x += 1) {
-      const alpha = image.data[(y * canvas.width + x) * 4 + 3];
+      const alpha = image.data[(y * canvas.width + x) * 4 + 3] ?? 0;
       if (alpha > 0) {
         minX = Math.min(minX, x);
         minY = Math.min(minY, y);
@@ -134,11 +154,13 @@ export function readSignatureCanvas(
   return output;
 }
 
-// ─── PDF-lib helpers ──────────────────────────────────────────────────────────
-
-/** Convertit une couleur hex (#rrggbb) en objet rgb() de pdf-lib */
 export function hexToRgb(hex: string) {
   const value = hex.replace("#", "");
+
+  if (!/^[0-9a-f]{6}$/i.test(value)) {
+    throw new Error("Couleur hex invalide.");
+  }
+
   const bigint = parseInt(value, 16);
   return rgb(
     ((bigint >> 16) & 255) / 255,
@@ -147,7 +169,6 @@ export function hexToRgb(hex: string) {
   );
 }
 
-/** Calcule les coordonnées x/y pour un placement donné sur une page PDF */
 export function getPlacement(
   placement: Placement,
   pageWidth: number,
@@ -168,18 +189,13 @@ export function getPlacement(
       y: pageHeight - itemHeight - margin,
     },
   };
+
   return {
     x: Math.max(16, positions[placement].x),
     y: Math.max(16, positions[placement].y),
   };
 }
 
-// ─── PDF.js loader (singleton) ────────────────────────────────────────────────
-
-type PdfJsModule = typeof import("pdfjs-dist");
-let pdfJsPromise: Promise<PdfJsModule> | null = null;
-
-/** Charge pdfjs-dist une seule fois et configure le worker */
 export async function loadPdfJs(): Promise<PdfJsModule> {
   if (!pdfJsPromise) {
     pdfJsPromise = import("pdfjs-dist").then((module) => {
@@ -190,5 +206,6 @@ export async function loadPdfJs(): Promise<PdfJsModule> {
       return module;
     });
   }
+
   return pdfJsPromise;
 }

@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OMA PDF Universe
 
-## Getting Started
+OMA PDF Universe est un studio PDF local-first pour fusionner, convertir, signer et annoter des documents directement dans le navigateur.
 
-First, run the development server:
+Production cible : `https://pdf.omadigital.net`
+
+## Stack
+
+- Next.js 16 App Router
+- React 19
+- TypeScript strict
+- Tailwind CSS v4
+- next-intl avec routes `/fr` et `/en`
+- pdf-lib, pdfjs-dist, JSZip
+- Vitest pour les tests unitaires
+
+## Scripts
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+npm run audit
+npm run quality
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`npm run quality` execute lint, typecheck, tests, build et audit high-level.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```text
+messages/                 Traductions FR/EN
+src/app/[locale]/         Routes localisees
+src/components/app/       Shell client du studio PDF
+src/components/tools/     Outils PDF independants
+src/components/shared/    UI partagee
+src/i18n/                 Routing next-intl
+src/lib/                  Types et utilitaires PDF
+proxy.ts                  Routage i18n Next 16
+```
 
-## Learn More
+## Confidentialite
 
-To learn more about Next.js, take a look at the following resources:
+Les fichiers sont traites dans le navigateur. Aucune route API ne recoit les PDF, images ou signatures.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Qualite
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+La CI GitHub lance :
 
-## Deploy on Vercel
+- `npm run lint`
+- `npm run typecheck`
+- `npm run test`
+- `npm run build`
+- `npm run audit`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deploiement
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Le projet est pret pour Vercel. Aucun secret n'est requis pour la version gratuite actuelle.
