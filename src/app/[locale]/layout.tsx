@@ -21,10 +21,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     description: t("description"),
     metadataBase: new URL("https://pdfuniverse.omadigital.net"),
+    alternates: {
+      canonical: `/${locale}`,
+      languages: {
+        fr: "/fr",
+        en: "/en",
+        "x-default": "/fr",
+      },
+    },
     openGraph: {
       title: t("ogTitle"),
       description: t("ogDescription"),
-      url: "https://pdfuniverse.omadigital.net",
+      url: `https://pdfuniverse.omadigital.net/${locale}`,
       images: ["/opengraph-image"],
       siteName: "OMA PDF",
       locale: locale === "fr" ? "fr_FR" : "en_US",
