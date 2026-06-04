@@ -23,6 +23,7 @@ npm run lint
 npm run typecheck
 npm run test
 npm run test:e2e
+npm run test:e2e:corpus
 npm run build
 npm run audit
 npm run quality
@@ -82,6 +83,15 @@ Les tests e2e couvrent :
 - ajout de texte sur un PDF genere ;
 - erreur recuperable sur PDF corrompu ;
 - export du rapport Diagnostics.
+
+QA locale sur documents reels :
+
+```powershell
+$env:OMA_PDF_QA_CORPUS_DIR="C:\chemin\vers\copies-de-documents"
+npm run test:e2e:corpus
+```
+
+Cette suite optionnelle lit un dossier local prive et teste les outils avec des PDF et images reels. Elle ne commit aucun document et n'envoie aucun fichier a un serveur.
 
 Limite actuelle : la validation Safari iOS et Chrome Android sur appareils reels doit etre executee avant une mise en production critique, via appareils physiques ou une ferme de navigateurs. La suite locale couvre Chromium desktop et mobile emule.
 
