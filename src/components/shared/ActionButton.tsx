@@ -24,11 +24,11 @@ export function ActionButton({
 }: Props) {
   const isDisabled = disabled || loading;
   const base =
-    "inline-flex h-11 items-center justify-center gap-2 rounded-md border px-5 text-sm font-bold transition duration-200 ease-out active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-2";
+    "inline-flex h-11 items-center justify-center gap-2 rounded-md border px-5 text-sm font-bold transition duration-200 ease-out active:translate-y-px disabled:cursor-not-allowed disabled:border-[var(--button-disabled-line)] disabled:bg-[var(--button-disabled-bg)] disabled:text-[var(--button-disabled-fg)] disabled:opacity-100 disabled:shadow-none disabled:hover:translate-y-0 disabled:hover:bg-[var(--button-disabled-bg)] focus-visible:outline-2";
   const styles =
     variant === "accent"
-      ? `${base} border-[var(--accent)] bg-[var(--accent)] text-[var(--panel)] shadow-[var(--shadow-accent)] hover:-translate-y-0.5 hover:bg-[var(--accent-strong)] focus-visible:outline-[var(--accent)]`
-      : `${base} border-[var(--foreground)] bg-[var(--foreground)] text-[var(--panel)] shadow-[var(--shadow-sm)] hover:-translate-y-0.5 hover:bg-[var(--foreground-soft)] focus-visible:outline-[var(--foreground)]`;
+      ? `${base} border-[var(--foreground)] bg-[var(--foreground)] text-[var(--panel)] shadow-[var(--shadow-sm)] hover:-translate-y-0.5 hover:bg-[var(--foreground-soft)] focus-visible:outline-[var(--foreground)]`
+      : `${base} border-[var(--button-border)] bg-[var(--button-bg)] text-[var(--button-fg)] shadow-[var(--shadow-button)] hover:-translate-y-0.5 hover:bg-[var(--button-hover)] hover:shadow-[var(--shadow-accent)] focus-visible:outline-[var(--accent)]`;
 
   return (
     <button

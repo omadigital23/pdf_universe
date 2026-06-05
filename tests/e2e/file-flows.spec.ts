@@ -118,6 +118,32 @@ test("pdf-to-images tool exports a generated PDF as a zip", async ({ page }, tes
   });
 });
 
+test("organize tool extracts selected pages from a generated PDF", async ({ page }, testInfo) => {
+  const dir = testInfo.outputPath("fixtures");
+  await mkdir(dir, { recursive: true });
+  const sourcePdf = path.join(dir, "report.pdf");
+  await createPdf(sourcePdf, 4);
+
+  await page.goto("/fr/app?tool=organize");
+  await page.locator('input[type="file"]').setInputFiles(sourcePdf);
+  await page.getByRole("textbox", { name: "Pages" }).fill("1,3");
+
+  const action = page
+    .locator("button:not([aria-pressed])")
+    .filter({ hasText: "Organiser" });
+  await expect(action).toBeEnabled();
+
+  const downloadPromise = page.waitForEvent("download");
+  await action.click();
+  const download = await downloadPromise;
+
+  expect(download.suggestedFilename()).toBe("report-extract.pdf");
+  await expectDownloadedFile(download);
+  await expect(page.getByRole("status")).toContainText(/extraites/i, {
+    timeout: 15_000,
+  });
+});
+
 test("sign tool applies a drawn signature to a generated PDF", async ({ page }, testInfo) => {
   const dir = testInfo.outputPath("fixtures");
   await mkdir(dir, { recursive: true });

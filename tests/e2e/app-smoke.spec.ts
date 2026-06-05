@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const toolCases = [
   { tool: "merge", heading: "Assembler plusieurs PDF" },
+  { tool: "organize", heading: "Gérer les pages PDF" },
   { tool: "images-to-pdf", heading: "JPG ou PNG vers document" },
   { tool: "pdf-to-images", heading: "Exporter toutes les pages" },
   { tool: "sign", heading: "Signature visuelle" },

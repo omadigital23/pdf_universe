@@ -30,7 +30,7 @@ export function SelectField<T extends string>({
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value as T)}
-        className="h-10 rounded-md border border-[var(--line)] bg-[var(--panel)] px-3 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-light)]"
+        className="h-11 rounded-md border border-[var(--line)] bg-[var(--panel)] px-3 text-sm font-medium text-[var(--foreground)] outline-none shadow-[var(--shadow-inset)] transition hover:border-[var(--line-strong)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-light)]"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>

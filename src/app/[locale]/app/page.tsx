@@ -43,6 +43,7 @@ export default async function AppPage({ params }: Props) {
 
   const featureList = [
     app("tools.merge.label"),
+    app("tools.organize.label"),
     app("tools.imagesToPdf.label"),
     app("tools.pdfToImages.label"),
     app("tools.sign.label"),

@@ -66,11 +66,11 @@ export function DropZone({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={`
-          flex min-h-48 flex-col items-center justify-center gap-3
-          rounded-md border-2 border-dashed px-6 py-10 text-center
+          flex min-h-40 flex-col items-center justify-center gap-3
+          rounded-md border border-dashed px-6 py-8 text-center
           transition-all duration-200
           ${disabled
-            ? "cursor-not-allowed border-[var(--line)] bg-[var(--panel-secondary)] opacity-65"
+            ? "cursor-not-allowed border-[var(--line)] bg-[var(--panel-secondary)] opacity-75"
             : isDragging
               ? "scale-[1.01] cursor-pointer border-[var(--accent)] bg-[var(--accent-muted)] shadow-[var(--shadow-sm)]"
               : "cursor-pointer border-[var(--line)] bg-[var(--panel-secondary)] hover:border-[var(--accent)] hover:bg-[var(--accent-pale)]"
@@ -80,14 +80,14 @@ export function DropZone({
       >
         <span
           className={`
-            flex h-14 w-14 items-center justify-center rounded-md border transition-colors
+            flex h-12 w-12 items-center justify-center rounded-md border transition-colors
             ${isDragging
               ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--panel)]"
               : "border-[var(--accent-light)] bg-[var(--accent-muted)] text-[var(--accent)]"
             }
           `}
         >
-          <UploadCloud className="h-6 w-6" aria-hidden="true" />
+          <UploadCloud className="h-5 w-5" aria-hidden="true" />
         </span>
 
         <div>

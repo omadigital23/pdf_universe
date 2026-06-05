@@ -20,6 +20,7 @@ type Props = {
 const APP_VERSION = "0.1.0";
 const TOOL_IDS: ToolId[] = [
   "merge",
+  "organize",
   "images-to-pdf",
   "pdf-to-images",
   "sign",
@@ -158,6 +159,7 @@ function Metric({ label, value }: { label: string; value: number }) {
 function toolKey(toolId: ToolId): string {
   const keys: Record<ToolId, string> = {
     merge: "merge",
+    organize: "organize",
     "images-to-pdf": "imagesToPdf",
     "pdf-to-images": "pdfToImages",
     sign: "sign",

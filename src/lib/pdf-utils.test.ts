@@ -5,6 +5,7 @@ import {
   isPdfFile,
   isSupportedImageFile,
   mergeUniqueFiles,
+  parsePageSelection,
   safeBaseName,
 } from "./pdf-utils";
 
@@ -60,6 +61,32 @@ describe("pdf-utils", () => {
     expect(getPlacement("center", 200, 200, 80, 40)).toEqual({
       x: 60,
       y: 80,
+    });
+  });
+
+  it("parses page lists and ranges as zero-based indexes", () => {
+    expect(parsePageSelection("1, 3-5, 3", 8)).toEqual({
+      ok: true,
+      pages: [0, 2, 3, 4],
+    });
+  });
+
+  it("supports empty selections when all pages are allowed", () => {
+    expect(parsePageSelection("", 3, { allowEmpty: true })).toEqual({
+      ok: true,
+      pages: [0, 1, 2],
+    });
+  });
+
+  it("rejects invalid page selections", () => {
+    expect(parsePageSelection("", 3)).toEqual({ ok: false, error: "empty" });
+    expect(parsePageSelection("2-1", 3)).toEqual({
+      ok: false,
+      error: "syntax",
+    });
+    expect(parsePageSelection("4", 3)).toEqual({
+      ok: false,
+      error: "bounds",
     });
   });
 });

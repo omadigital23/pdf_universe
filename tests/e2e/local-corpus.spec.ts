@@ -102,6 +102,32 @@ test.describe("local PDF corpus QA", () => {
     });
   });
 
+  test("organizes a real corpus PDF", async ({ page }) => {
+    expect(pdfs.length).toBeGreaterThanOrEqual(1);
+    const sourcePdf = smallestFiles(pdfs, 1)[0];
+    expect(sourcePdf).toBeDefined();
+    if (!sourcePdf) return;
+
+    await openTool(page, "organize", "Gérer les pages PDF");
+    await page.locator('input[type="file"]').setInputFiles(sourcePdf.filePath);
+    await page.getByRole("textbox", { name: "Pages" }).fill("1");
+
+    const action = page
+      .locator("button:not([aria-pressed])")
+      .filter({ hasText: "Organiser" });
+    await expect(action).toBeEnabled({ timeout: 10_000 });
+
+    const downloadPromise = page.waitForEvent("download");
+    await action.click();
+    const download = await downloadPromise;
+
+    expect(download.suggestedFilename()).toMatch(/-extract\.pdf$/);
+    await expectDownloadedFile(download);
+    await expect(page.getByRole("status")).toContainText(/extraites/i, {
+      timeout: 60_000,
+    });
+  });
+
   test("signs and edits a real corpus PDF", async ({ page }) => {
     expect(pdfs.length).toBeGreaterThanOrEqual(1);
     const sourcePdf = smallestFiles(pdfs, 1)[0];

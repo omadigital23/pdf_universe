@@ -13,6 +13,7 @@ import {
   Layers2,
   Lock,
   PenLine,
+  Scissors,
   UploadCloud,
 } from "lucide-react";
 import { OmaLogo } from "@/components/shared/OmaLogo";
@@ -36,6 +37,7 @@ export default async function LandingPage({ params }: Props) {
 
   const tools: CardItem[] = [
     { icon: FileStack, tone: "bg-[var(--tool-merge-bg)] text-[var(--tool-merge-accent)] border-[var(--accent-light)]", label: t("featureMergeLabel"), desc: t("featureMergeDesc") },
+    { icon: Scissors, tone: "bg-[var(--tool-organize-bg)] text-[var(--tool-organize-accent)] border-[var(--line)]", label: t("featureOrganizeLabel"), desc: t("featureOrganizeDesc") },
     { icon: ImageIcon, tone: "bg-[var(--tool-images-bg)] text-[var(--tool-images-accent)] border-[var(--warning-line)]", label: t("featureImagesLabel"), desc: t("featureImagesDesc") },
     { icon: FileImage, tone: "bg-[var(--tool-pdf-images-bg)] text-[var(--tool-pdf-images-accent)] border-[var(--info-line)]", label: t("featurePdfImagesLabel"), desc: t("featurePdfImagesDesc") },
     { icon: PenLine, tone: "bg-[var(--tool-sign-bg)] text-[var(--tool-sign-accent)] border-[var(--danger-line)]", label: t("featureSignLabel"), desc: t("featureSignDesc") },
@@ -55,6 +57,7 @@ export default async function LandingPage({ params }: Props) {
     t("planFreeFeature3"),
     t("planFreeFeature4"),
     t("planFreeFeature5"),
+    t("planFreeFeature6"),
   ];
 
   const proFeatures = [
@@ -219,7 +222,7 @@ export default async function LandingPage({ params }: Props) {
               <h2 className="text-3xl font-black tracking-normal text-[var(--foreground)] sm:text-4xl">{t("featuresTitle")}</h2>
               <p className="mt-3 text-base leading-7 text-[var(--muted)]">{t("featuresSubtitle")}</p>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
               {tools.map((tool) => {
                 const Icon = tool.icon;
                 return (

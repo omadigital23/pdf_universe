@@ -9,7 +9,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { RotateCcw, FileStack, ImagePlus, Images, PenLine, Type, Plus, ChevronRight } from "lucide-react";
+import { RotateCcw, FileStack, ImagePlus, Images, PenLine, Type, Plus, ChevronRight, Scissors } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
 import { AppErrorBoundary } from "@/components/app/AppErrorBoundary";
@@ -17,6 +17,7 @@ import { DiagnosticsPanel } from "@/components/app/DiagnosticsPanel";
 import { StatusPill } from "@/components/shared/StatusPill";
 import { PdfPreview } from "@/components/shared/PdfPreview";
 import { MergeTool } from "@/components/tools/MergeTool";
+import { OrganizeTool } from "@/components/tools/OrganizeTool";
 import { ImagesToPdfTool } from "@/components/tools/ImagesToPdfTool";
 import { PdfToImagesTool } from "@/components/tools/PdfToImagesTool";
 import { SignTool } from "@/components/tools/SignTool";
@@ -41,6 +42,14 @@ const TOOLS: Array<{
     shortKey: "tools.merge.short",
     colorVar: "var(--tool-merge-accent)",
     bgVar: "var(--tool-merge-bg)",
+  },
+  {
+    id: "organize",
+    icon: Scissors,
+    labelKey: "tools.organize.label",
+    shortKey: "tools.organize.short",
+    colorVar: "var(--tool-organize-accent)",
+    bgVar: "var(--tool-organize-bg)",
   },
   {
     id: "images-to-pdf",
@@ -277,7 +286,7 @@ function AppInner({ locale }: Props) {
 
           {/* Tabs outils — mobile */}
           <nav
-            className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 gap-1 overflow-hidden border-t border-[var(--line)] bg-[var(--panel-glass)] px-2 py-2 backdrop-blur-md lg:hidden"
+            className="fixed bottom-0 left-0 right-0 z-40 flex gap-1 overflow-hidden border-t border-[var(--line)] bg-[var(--panel-glass)] px-2 py-2 backdrop-blur-md lg:hidden"
             aria-label={t("toolsNavigation")}
           >
             {TOOLS.map((tool) => {
@@ -287,17 +296,20 @@ function AppInner({ locale }: Props) {
                   key={tool.id}
                   type="button"
                   onClick={() => selectTool(tool.id)}
+                  aria-label={t(tool.labelKey)}
                   aria-pressed={isActive}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-md border px-1.5 py-1.5 text-[10px] font-bold transition duration-200 ${
+                  className={`flex min-h-14 items-center justify-center gap-1.5 overflow-hidden rounded-md border py-1.5 font-bold transition duration-200 ${
                     isActive
-                      ? "border-transparent text-[var(--panel)] shadow-[var(--shadow-xs)]"
-                      : "border-[var(--line)] bg-[var(--panel-secondary)] text-[var(--muted)]"
+                      ? "min-w-[6.75rem] flex-1 border-transparent px-3 text-xs text-[var(--panel)] shadow-[var(--shadow-xs)]"
+                      : "w-12 flex-none border-[var(--line)] bg-[var(--panel-secondary)] px-1.5 text-[var(--muted)]"
                   }`}
                   style={isActive ? { background: tool.colorVar } : undefined}
                 >
                   <tool.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span className="max-w-full truncate">{t(tool.labelKey)}</span>
+                  <span className={isActive ? "max-w-full truncate" : "sr-only"}>
+                    {t(tool.labelKey)}
+                  </span>
                 </button>
               );
             })}
@@ -350,6 +362,14 @@ function AppInner({ locale }: Props) {
                     setStatus={handleStatusChange}
                     isWorking={isWorking}
                     onMetricsChange={updateMetrics}
+                  />
+                )}
+                {activeTool === "organize" && (
+                  <OrganizeTool
+                    setStatus={handleStatusChange}
+                    isWorking={isWorking}
+                    onMetricsChange={updateMetrics}
+                    onFileChange={setPreviewFile}
                   />
                 )}
                 {activeTool === "images-to-pdf" && (

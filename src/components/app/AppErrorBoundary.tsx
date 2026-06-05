@@ -57,7 +57,7 @@ class PdfErrorBoundary extends Component<Props, State> {
           <button
             type="button"
             onClick={() => this.setState({ hasError: false })}
-            className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[var(--foreground)] bg-[var(--foreground)] px-4 text-sm font-bold text-[var(--panel)] transition hover:bg-[var(--foreground-soft)] focus-visible:outline-2"
+            className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[var(--button-border)] bg-[var(--button-bg)] px-4 text-sm font-bold text-[var(--button-fg)] shadow-[var(--shadow-button)] transition hover:-translate-y-0.5 hover:bg-[var(--button-hover)] focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
           >
             <RefreshCcw className="h-4 w-4" aria-hidden="true" />
             {this.props.labels.reset}
