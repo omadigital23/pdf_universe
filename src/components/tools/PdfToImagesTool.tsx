@@ -60,13 +60,14 @@ export function PdfToImagesTool({
       const pdf = await pdfjs.getDocument({
         data: new Uint8Array(await file.arrayBuffer()),
       }).promise;
+      const pageCount = pdf.numPages;
       const zip = new JSZip();
       const baseName = safeBaseName(file.name);
 
-      for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+      for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
         setStatus({
           kind: "working",
-          text: `${tp("working")} ${pageNumber}/${pdf.numPages}`,
+          text: `${tp("working")} ${pageNumber}/${pageCount}`,
         });
         const page = await pdf.getPage(pageNumber);
         const viewport = page.getViewport({ scale: renderScale });
@@ -85,11 +86,11 @@ export function PdfToImagesTool({
 
       await pdf.cleanup();
       const zipBlob = await zip.generateAsync({ type: "blob" });
-      downloadBlob(zipBlob, `${baseName}-images.zip`);
       setStatus({
         kind: "success",
-        text: `${pdf.numPages} ${tp("success")}`,
+        text: `${pageCount} ${tp("success")}`,
       });
+      downloadBlob(zipBlob, `${baseName}-images.zip`);
     } catch (err) {
       setStatus({
         kind: "error",

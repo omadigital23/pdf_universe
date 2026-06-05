@@ -23,8 +23,8 @@ test("landing page is localized and links to the studio", async ({ page }) => {
   );
 });
 
-test("all PDF tools render from query state", async ({ page }) => {
-  for (const { tool, heading } of toolCases) {
+for (const { tool, heading } of toolCases) {
+  test(`${tool} renders from query state`, async ({ page }) => {
     await page.goto(`/fr/app?tool=${tool}`);
 
     await expect(page.getByRole("heading", { name: heading })).toBeVisible();
@@ -37,8 +37,8 @@ test("all PDF tools render from query state", async ({ page }) => {
         ),
       )
       .toBe(true);
-  }
-});
+  });
+}
 
 test("invalid tool query falls back to merge", async ({ page }) => {
   await page.goto("/fr/app?tool=unknown");

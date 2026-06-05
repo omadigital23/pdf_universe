@@ -11,22 +11,13 @@ import {
   recordTelemetryEvent,
   type TelemetrySnapshot,
 } from "@/lib/local-telemetry";
-import type { ToolId } from "@/lib/types";
+import { TOOL_IDS, TOOL_TRANSLATION_KEYS } from "@/lib/tools";
 
 type Props = {
   locale: string;
 };
 
 const APP_VERSION = "0.1.0";
-const TOOL_IDS: ToolId[] = [
-  "merge",
-  "organize",
-  "images-to-pdf",
-  "pdf-to-images",
-  "sign",
-  "edit",
-];
-
 export function DiagnosticsPanel({ locale }: Props) {
   const t = useTranslations("app.diagnostics");
   const toolLabels = useTranslations("app.tools");
@@ -49,7 +40,7 @@ export function DiagnosticsPanel({ locale }: Props) {
       successes: events.filter((event) => event.name === "process_success").length,
       tools: TOOL_IDS.map((toolId) => ({
         id: toolId,
-        label: toolLabels(`${toolKey(toolId)}.label`),
+        label: toolLabels(`${TOOL_TRANSLATION_KEYS[toolId].key}.label`),
         count: events.filter(
           (event) => event.name === "tool_select" && event.tool === toolId,
         ).length,
@@ -154,17 +145,4 @@ function Metric({ label, value }: { label: string; value: number }) {
       </dd>
     </div>
   );
-}
-
-function toolKey(toolId: ToolId): string {
-  const keys: Record<ToolId, string> = {
-    merge: "merge",
-    organize: "organize",
-    "images-to-pdf": "imagesToPdf",
-    "pdf-to-images": "pdfToImages",
-    sign: "sign",
-    edit: "edit",
-  };
-
-  return keys[toolId];
 }

@@ -73,8 +73,8 @@ export function MergeTool({
       const firstFile = files[0];
       if (!firstFile) throw new Error(tm("errorMin"));
       const base = safeBaseName(firstFile.name);
-      downloadBytes(bytes, `${base}-fusion.pdf`);
       setStatus({ kind: "success", text: `${files.length} ${tm("success")}` });
+      downloadBytes(bytes, `${base}-fusion.pdf`);
     } catch (err) {
       setStatus({
         kind: "error",

@@ -103,11 +103,11 @@ export function ImagesToPdfTool({
       }
 
       const bytes = await pdf.save();
-      downloadBytes(bytes, "images-en-pdf.pdf");
       setStatus({
         kind: "success",
         text: `${files.length} ${ti("success")}`,
       });
+      downloadBytes(bytes, "images-en-pdf.pdf");
     } catch (err) {
       setStatus({
         kind: "error",

@@ -101,8 +101,8 @@ export function EditTool({
       }
 
       const bytes = await pdf.save();
-      downloadBytes(bytes, `${safeBaseName(file.name)}-modifie.pdf`);
       setStatus({ kind: "success", text: te("success") });
+      downloadBytes(bytes, `${safeBaseName(file.name)}-modifie.pdf`);
     } catch (err) {
       setStatus({
         kind: "error",

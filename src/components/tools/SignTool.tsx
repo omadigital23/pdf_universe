@@ -147,8 +147,8 @@ export function SignTool({
       const { x, y } = getPlacement(placement, pageW, pageH, w, h);
       target.drawImage(sigImg, { x, y, width: w, height: h });
       const bytes = await pdf.save();
-      downloadBytes(bytes, `${safeBaseName(file.name)}-signe.pdf`);
       setStatus({ kind: "success", text: ts("success") });
+      downloadBytes(bytes, `${safeBaseName(file.name)}-signe.pdf`);
     } catch (err) {
       setStatus({
         kind: "error",

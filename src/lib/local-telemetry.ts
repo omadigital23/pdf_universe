@@ -1,4 +1,5 @@
 import type { StatusKind, ToolId } from "./types";
+import { TOOL_IDS } from "./tools";
 
 const STORAGE_KEY = "oma-pdf-telemetry-v1";
 const MAX_EVENTS = 200;
@@ -55,14 +56,6 @@ export type DiagnosticsReport = {
   };
   events: TelemetryEvent[];
 };
-
-const TOOL_IDS: ToolId[] = [
-  "merge",
-  "images-to-pdf",
-  "pdf-to-images",
-  "sign",
-  "edit",
-];
 
 function canUseStorage(): boolean {
   try {

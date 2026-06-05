@@ -116,8 +116,9 @@ export function OrganizeTool({
           part += 1;
         }
 
-        downloadBlob(await zip.generateAsync({ type: "blob" }), `${baseName}-split.zip`);
+        const zipBlob = await zip.generateAsync({ type: "blob" });
         setStatus({ kind: "success", text: to("successSplit") });
+        downloadBlob(zipBlob, `${baseName}-split.zip`);
         return;
       }
 
@@ -133,8 +134,9 @@ export function OrganizeTool({
 
       if (mode === "extract") {
         const target = await copyPages(source, selection.pages);
-        downloadBytes(await target.save(), `${baseName}-extract.pdf`);
+        const bytes = await target.save();
         setStatus({ kind: "success", text: to("successExtract") });
+        downloadBytes(bytes, `${baseName}-extract.pdf`);
         return;
       }
 
@@ -150,8 +152,9 @@ export function OrganizeTool({
         }
 
         const target = await copyPages(source, remainingPages);
-        downloadBytes(await target.save(), `${baseName}-delete.pdf`);
+        const bytes = await target.save();
         setStatus({ kind: "success", text: to("successDelete") });
+        downloadBytes(bytes, `${baseName}-delete.pdf`);
         return;
       }
 
@@ -166,14 +169,16 @@ export function OrganizeTool({
           page.setRotation(degrees((currentAngle + rotationAngle) % 360));
         }
 
-        downloadBytes(await target.save(), `${baseName}-rotate.pdf`);
+        const bytes = await target.save();
         setStatus({ kind: "success", text: to("successRotate") });
+        downloadBytes(bytes, `${baseName}-rotate.pdf`);
         return;
       }
 
       const target = await copyPages(source, selection.pages);
-      downloadBytes(await target.save(), `${baseName}-reorder.pdf`);
+      const bytes = await target.save();
       setStatus({ kind: "success", text: to("successReorder") });
+      downloadBytes(bytes, `${baseName}-reorder.pdf`);
     } catch (err) {
       setStatus({
         kind: "error",
