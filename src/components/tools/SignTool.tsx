@@ -20,6 +20,7 @@ import {
   getPlacement,
   isPdfFile,
   readSignatureCanvas,
+  releaseCanvas,
   safeBaseName,
 } from "@/lib/pdf-utils";
 import type { Placement, ToolRuntimeProps } from "@/lib/types";
@@ -138,7 +139,13 @@ export function SignTool({
       if (pages.length === 0) throw new Error(t("statusError"));
       const target = pages[Math.min(Math.max(page, 1), pages.length) - 1];
       if (!target) throw new Error(t("statusError"));
-      const sigBytes = await (await canvasToBlob(cropped)).arrayBuffer();
+      let signatureBlob: Blob;
+      try {
+        signatureBlob = await canvasToBlob(cropped);
+      } finally {
+        releaseCanvas(cropped);
+      }
+      const sigBytes = await signatureBlob.arrayBuffer();
       const sigImg = await pdf.embedPng(sigBytes);
       const pageW = target.getWidth();
       const pageH = target.getHeight();

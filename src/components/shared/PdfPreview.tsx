@@ -9,7 +9,7 @@
 import { useEffect, useState } from "react";
 import { FileText, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { canvasToBlob, loadPdfJs } from "@/lib/pdf-utils";
+import { canvasToBlob, loadPdfJs, releaseCanvas } from "@/lib/pdf-utils";
 
 type Props = {
   file: File | null;
@@ -39,23 +39,34 @@ export function PdfPreview({ file }: Props) {
         const pdf = await pdfjs.getDocument({
           data: new Uint8Array(await file.arrayBuffer()),
         }).promise;
-        const page = await pdf.getPage(1);
-        const viewport = page.getViewport({ scale: 0.85 });
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        if (!context) throw new Error(t("previewUnavailable"));
+        try {
+          const page = await pdf.getPage(1);
+          const viewport = page.getViewport({ scale: 0.85 });
+          const canvas = document.createElement("canvas");
 
-        canvas.width = Math.ceil(viewport.width);
-        canvas.height = Math.ceil(viewport.height);
-        await page.render({ canvas, canvasContext: context, viewport }).promise;
-        const blob = await canvasToBlob(canvas);
-        objectUrl = URL.createObjectURL(blob);
+          try {
+            const context = canvas.getContext("2d");
+            if (!context) throw new Error(t("previewUnavailable"));
 
-        if (!cancelled) {
-          setPreview(objectUrl);
-          setPages(pdf.numPages);
+            canvas.width = Math.ceil(viewport.width);
+            canvas.height = Math.ceil(viewport.height);
+            await page.render({ canvas, canvasContext: context, viewport }).promise;
+            const blob = await canvasToBlob(canvas);
+            objectUrl = URL.createObjectURL(blob);
+
+            if (!cancelled) {
+              setPreview(objectUrl);
+              setPages(pdf.numPages);
+            } else {
+              URL.revokeObjectURL(objectUrl);
+              objectUrl = null;
+            }
+          } finally {
+            releaseCanvas(canvas);
+          }
+        } finally {
+          await pdf.cleanup();
         }
-        await pdf.cleanup();
       } catch {
         if (!cancelled) {
           setPreview(null);

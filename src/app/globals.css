@@ -3,7 +3,7 @@
 /* ═══════════════════════════════════════════════════════════
    OMA PDF UNIVERSE — Design System v2.0
    Direction : Papier de luxe · Encre teal · Minimalisme raffiné
-   Police : pile locale/systeme, sans requete externe
+   Police : Inter auto-hebergee via next/font, sans requete externe runtime
 ═══════════════════════════════════════════════════════════ */
 
 :root {
@@ -107,7 +107,7 @@
 
   /* ── Typographie ──────────────────────────────────────── */
   --font-display: Georgia, "Times New Roman", serif;
-  --font-sans: Inter, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-inter), "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --font-mono: 'JetBrains Mono', 'Cascadia Code', ui-monospace, monospace;
 }
 
@@ -204,9 +204,9 @@
   --color-dark: var(--dark);
   --color-disabled: var(--disabled);
 
-  --font-display: var(--font-display);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
+  --font-display: Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", "Inter Fallback", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", ui-monospace, monospace;
 }
 
 /* ─── Base ───────────────────────────────────────────────── */

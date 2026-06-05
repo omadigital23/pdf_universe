@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { recordTelemetryEvent } from "@/lib/local-telemetry";
 import type {
   StudioMetrics,
@@ -71,6 +72,11 @@ export function useStudioSession({
     }
 
     lastStatusKindRef.current = nextStatus.kind;
+    if (nextStatus.kind === "success" || nextStatus.kind === "error") {
+      flushSync(() => setStatus(nextStatus));
+      return;
+    }
+
     setStatus(nextStatus);
   }
 

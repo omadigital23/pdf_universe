@@ -12,6 +12,7 @@ import {
   downloadBlob,
   isPdfFile,
   loadPdfJs,
+  releaseCanvas,
   safeBaseName,
 } from "@/lib/pdf-utils";
 import type { ToolRuntimeProps } from "@/lib/types";
@@ -72,16 +73,21 @@ export function PdfToImagesTool({
         const page = await pdf.getPage(pageNumber);
         const viewport = page.getViewport({ scale: renderScale });
         const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        if (!ctx) throw new Error("Canvas indisponible.");
-        canvas.width = Math.ceil(viewport.width);
-        canvas.height = Math.ceil(viewport.height);
-        await page.render({ canvas, canvasContext: ctx, viewport }).promise;
-        const blob = await canvasToBlob(canvas);
-        zip.file(
-          `${baseName}-page-${String(pageNumber).padStart(3, "0")}.png`,
-          blob,
-        );
+
+        try {
+          const ctx = canvas.getContext("2d");
+          if (!ctx) throw new Error("Canvas indisponible.");
+          canvas.width = Math.ceil(viewport.width);
+          canvas.height = Math.ceil(viewport.height);
+          await page.render({ canvas, canvasContext: ctx, viewport }).promise;
+          const blob = await canvasToBlob(canvas);
+          zip.file(
+            `${baseName}-page-${String(pageNumber).padStart(3, "0")}.png`,
+            blob,
+          );
+        } finally {
+          releaseCanvas(canvas);
+        }
       }
 
       await pdf.cleanup();

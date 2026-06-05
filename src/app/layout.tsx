@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://pdfuniverse.omadigital.net"),
@@ -14,7 +21,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html className="h-full scroll-smooth" suppressHydrationWarning>
+    <html
+      className={`${inter.variable} h-full scroll-smooth`}
+      suppressHydrationWarning
+    >
       <body className="min-h-full bg-[var(--background)] antialiased">
         {children}
       </body>
