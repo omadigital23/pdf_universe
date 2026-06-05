@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const inter = Inter({
@@ -9,12 +10,19 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://pdfuniverse.omadigital.net"),
+  metadataBase: new URL(SITE_URL),
   title: { default: "OMA PDF", template: "%s · OMA PDF" },
   description: "Outils PDF professionnels dans le navigateur, par OMA Digital.",
+  applicationName: "OMA PDF Universe",
+  manifest: "/manifest.webmanifest",
   openGraph: {
     siteName: "OMA PDF",
     images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: "OMA PDF",
+    statusBarStyle: "default",
   },
   robots: { index: true, follow: true },
 };

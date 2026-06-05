@@ -1,3 +1,5 @@
+import { SITE_URL } from "@/lib/site";
+
 type Props = {
   locale: string;
   brand: string;
@@ -28,7 +30,7 @@ export function LandingJsonLd({
           name: brand,
           applicationCategory: "BusinessApplication",
           operatingSystem: "Web",
-          url: `https://pdfuniverse.omadigital.net/${locale}`,
+          url: `${SITE_URL}/${locale}`,
           inLanguage: locale,
           availableLanguage: ["fr", "en"],
           areaServed: [

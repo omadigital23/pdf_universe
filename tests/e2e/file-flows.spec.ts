@@ -180,6 +180,32 @@ test("sign tool applies a drawn signature to a generated PDF", async ({ page }, 
   });
 });
 
+test("sign tool accepts a keyboard signature alternative", async ({ page }, testInfo) => {
+  const dir = testInfo.outputPath("fixtures");
+  await mkdir(dir, { recursive: true });
+  const sourcePdf = path.join(dir, "keyboard-contract.pdf");
+  await createPdf(sourcePdf, 1);
+
+  await page.goto("/fr/app?tool=sign");
+  await page.locator('input[type="file"]').setInputFiles(sourcePdf);
+  await page.getByLabel("Signature au clavier").fill("Amadou OMA");
+
+  const action = page
+    .locator("button:not([aria-pressed])")
+    .filter({ hasText: "Signer" });
+  await expect(action).toBeEnabled();
+
+  const downloadPromise = page.waitForEvent("download");
+  await action.click();
+  const download = await downloadPromise;
+
+  expect(download.suggestedFilename()).toBe("keyboard-contract-signe.pdf");
+  await expectDownloadedFile(download);
+  await expect(page.getByRole("status")).toContainText(/Signature/i, {
+    timeout: 15_000,
+  });
+});
+
 test("edit tool writes text on a generated PDF", async ({ page }, testInfo) => {
   const dir = testInfo.outputPath("fixtures");
   await mkdir(dir, { recursive: true });

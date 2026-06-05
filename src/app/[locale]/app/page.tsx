@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { PdfAppClient } from "@/components/app/PdfAppClient";
+import { SITE_URL } from "@/lib/site";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -11,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const app = await getTranslations({ locale, namespace: "app" });
 
   return {
-    metadataBase: new URL("https://pdfuniverse.omadigital.net"),
+    metadataBase: new URL(SITE_URL),
     title: app("pageTitle"),
     description: app("pageDescription"),
     alternates: {
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: app("pageTitle"),
       description: app("pageDescription"),
-      url: `https://pdfuniverse.omadigital.net/${locale}/app`,
+      url: `${SITE_URL}/${locale}/app`,
       images: ["/opengraph-image"],
     },
     twitter: {
@@ -63,7 +64,7 @@ export default async function AppPage({ params }: Props) {
             description: app("pageDescription"),
             applicationCategory: "BusinessApplication",
             operatingSystem: "Web",
-            url: `https://pdfuniverse.omadigital.net/${locale}/app`,
+            url: `${SITE_URL}/${locale}/app`,
             inLanguage: locale,
             availableLanguage: ["fr", "en"],
             areaServed: [
@@ -88,7 +89,7 @@ export default async function AppPage({ params }: Props) {
             },
             potentialAction: {
               "@type": "UseAction",
-              target: `https://pdfuniverse.omadigital.net/${locale}/app`,
+              target: `${SITE_URL}/${locale}/app`,
             },
           }),
         }}

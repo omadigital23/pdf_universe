@@ -46,7 +46,9 @@ export default async function AppLayout({ children, params }: Props) {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main id="main-content" tabIndex={-1} className="flex-1 overflow-y-auto">
+        {children}
+      </main>
 
       <footer className="hidden border-t border-[var(--line)] bg-[var(--panel)] px-4 py-3 text-center text-xs font-medium text-[var(--muted)] lg:block">
         {tn("brand")}

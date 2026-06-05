@@ -9,7 +9,13 @@
 import { Eraser, PenLine } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PDFDocument } from "pdf-lib";
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { DropZone } from "@/components/shared/DropZone";
 import { ActionButton } from "@/components/shared/ActionButton";
 import { NumberField } from "@/components/shared/NumberField";
@@ -41,7 +47,9 @@ export function SignTool({
   const [page, setPage] = useState(1);
   const [width, setWidth] = useState(180);
   const [placement, setPlacement] = useState<Placement>("bottom-right");
+  const [typedSignature, setTypedSignature] = useState("");
   const [dirty, setDirty] = useState(false);
+  const typedSignatureHintId = useId();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isDrawingRef = useRef(false);
 
@@ -80,6 +88,7 @@ export function SignTool({
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setTypedSignature("");
     setDirty(false);
   }
 
@@ -126,8 +135,11 @@ export function SignTool({
       setStatus({ kind: "error", text: ts("errorMissing") });
       return;
     }
-    const cropped = readSignatureCanvas(canvas);
-    if (!dirty || !cropped) {
+    const drawnSignature = dirty ? readSignatureCanvas(canvas) : null;
+    const signatureCanvas =
+      drawnSignature ?? createTypedSignatureCanvas(typedSignature);
+
+    if (!signatureCanvas) {
       setStatus({ kind: "error", text: ts("errorNoSign") });
       return;
     }
@@ -141,9 +153,9 @@ export function SignTool({
       if (!target) throw new Error(t("statusError"));
       let signatureBlob: Blob;
       try {
-        signatureBlob = await canvasToBlob(cropped);
+        signatureBlob = await canvasToBlob(signatureCanvas);
       } finally {
-        releaseCanvas(cropped);
+        releaseCanvas(signatureCanvas);
       }
       const sigBytes = await signatureBlob.arrayBuffer();
       const sigImg = await pdf.embedPng(sigBytes);
@@ -211,6 +223,20 @@ export function SignTool({
           className="h-44 w-full touch-none rounded-md border border-[var(--line)] bg-[var(--panel)] cursor-crosshair"
           style={{ touchAction: "none" }}
         />
+        <label className="mt-3 grid gap-2 text-sm font-medium text-[var(--foreground)]">
+          {ts("typedSignatureLabel")}
+          <input
+            value={typedSignature}
+            onChange={(event) => setTypedSignature(event.target.value)}
+            placeholder={ts("typedSignaturePlaceholder")}
+            aria-describedby={typedSignatureHintId}
+            disabled={isWorking}
+            className="h-11 rounded-md border border-[var(--line)] bg-[var(--panel)] px-3 text-sm font-medium text-[var(--foreground)] outline-none shadow-[var(--shadow-inset)] transition placeholder:text-[var(--muted-light)] hover:border-[var(--line-strong)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-light)]"
+          />
+          <span id={typedSignatureHintId} className="text-xs text-[var(--muted)]">
+            {ts("typedSignatureHint")}
+          </span>
+        </label>
       </div>
 
       {/* Options de placement */}
@@ -240,4 +266,29 @@ export function SignTool({
       </div>
     </div>
   );
+}
+
+function createTypedSignatureCanvas(value: string): HTMLCanvasElement | null {
+  const text = value.trim();
+  if (!text) return null;
+
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) return null;
+
+  context.font = "italic 72px Georgia, 'Times New Roman', serif";
+  const measured = context.measureText(text);
+  canvas.width = Math.min(1100, Math.max(480, Math.ceil(measured.width + 96)));
+  canvas.height = 220;
+
+  const nextContext = canvas.getContext("2d");
+  if (!nextContext) return null;
+  nextContext.font = "italic 72px Georgia, 'Times New Roman', serif";
+  nextContext.fillStyle = getComputedStyle(document.documentElement)
+    .getPropertyValue("--foreground")
+    .trim();
+  nextContext.textBaseline = "middle";
+  nextContext.fillText(text, 48, canvas.height / 2);
+
+  return canvas;
 }

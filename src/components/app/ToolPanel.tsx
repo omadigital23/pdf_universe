@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { StatusPill } from "@/components/shared/StatusPill";
@@ -34,6 +35,20 @@ export function ToolPanel({
 }: Props) {
   const t = useTranslations("app");
   const Icon = activeMeta.icon;
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+  const previousToolRef = useRef<ToolId | null>(null);
+
+  useEffect(() => {
+    if (previousToolRef.current === null) {
+      previousToolRef.current = activeTool;
+      return;
+    }
+
+    if (previousToolRef.current !== activeTool) {
+      previousToolRef.current = activeTool;
+      headingRef.current?.focus({ preventScroll: true });
+    }
+  }, [activeTool]);
 
   return (
     <div
@@ -58,7 +73,11 @@ export function ToolPanel({
             >
               {t(activeMeta.labelKey)}
             </p>
-            <h1 className="text-base font-semibold text-[var(--foreground)]">
+            <h1
+              ref={headingRef}
+              tabIndex={-1}
+              className="text-base font-semibold text-[var(--foreground)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-light)]"
+            >
               {t(activeMeta.shortKey)}
             </h1>
           </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import type { KeyboardEvent } from "react";
 import { ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { OmaLogo } from "@/components/shared/OmaLogo";
@@ -14,6 +15,29 @@ type Props = {
 
 export function ToolSidebar({ tools, activeTool, onSelect }: Props) {
   const t = useTranslations("app");
+
+  function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+    const currentIndex = tools.findIndex((tool) => tool.id === activeTool);
+    if (currentIndex < 0) return;
+
+    const lastIndex = tools.length - 1;
+    const nextIndex =
+      event.key === "ArrowDown"
+        ? Math.min(currentIndex + 1, lastIndex)
+        : event.key === "ArrowUp"
+          ? Math.max(currentIndex - 1, 0)
+          : event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? lastIndex
+              : currentIndex;
+
+    if (nextIndex === currentIndex) return;
+    const nextTool = tools[nextIndex];
+    if (!nextTool) return;
+    event.preventDefault();
+    onSelect(nextTool.id);
+  }
 
   return (
     <aside
@@ -36,6 +60,7 @@ export function ToolSidebar({ tools, activeTool, onSelect }: Props) {
             key={tool.id}
             type="button"
             onClick={() => onSelect(tool.id)}
+            onKeyDown={handleKeyDown}
             aria-current={isActive ? "page" : undefined}
             aria-pressed={isActive}
             className={`group flex items-center gap-3 rounded-md border px-3 py-2.5 text-left transition duration-200 ${

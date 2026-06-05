@@ -107,7 +107,7 @@ export default async function LandingPage({ params }: Props) {
         appLabel={tn("app")}
       />
 
-      <main className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1">
         <LandingJsonLd
           locale={locale}
           brand={tn("brand")}
